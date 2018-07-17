@@ -8,22 +8,29 @@ from .models import Book
 #excel_path = 'C:\\Users\\User\\workspace\\libmanage'
 
 
-def book_data(request):
+def book_data():
     file_name = 'C:\\Users\\User\\workspace\\libmanage\\books.xlsx'
     if os.path.exists(file_name):
 
         # Open the workbook
         xl_workbook = xlrd.open_workbook(file_name)
         sheet_names = xl_workbook.sheet_names()
-
-        #print('Sheet Names', sheet_names)
         xl_sheet = xl_workbook.sheet_by_name(sheet_names[0])
-        #import pdb; pdb.set_trace()
+        #xl_sheet = xl_workbook.sheet_by_index(0)
         for row_idx in range(1, xl_sheet.nrows):
-
             data = xl_sheet.row_values(row_idx)
-            b = Book(name=data[0], author=data[1], category=data[2],
-                     publisher=data[3], availability=data[4], edition=data[5])
-            b.save()
+            b = Book.objects.get_or_create(name=data[0], author=data[1], category=data[2],
+                        publisher=data[3], availability=data[4], edition=data[5])
+    else:
+        raise AttributeError("File path doesn't exist")
 
-        return HttpResponse(dir(xl_sheet))
+
+def get_books_data(request):
+
+    book_data()
+
+    data = Book.objects.all().order_by('edition')
+
+    return render(request, 'book_details.html', {'book_data': data})
+
+

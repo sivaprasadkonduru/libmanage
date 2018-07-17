@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body align="center">
+    <h1> Book Data </h1>
+    <table align="center" border="1">
+        <tr>
+            <td> S.No </td>
+            <td> Name </td>
+            <td> Author </td>
+            <td> Category </td>
+            <td> Publisher </td>
+            <td> Availability </td>
+            <td> Edition </td>
+        </tr>
+        {% for val in book_data %}
+        {% if val %}
+        <tr>
+            <td> {{ forloop.counter }}</td>
+            <td> {{ val.name }} </td>
+            <td> {{ val.author }} </td>
+            <td> {{ val.category }} </td>
+            <td> {{ val.publisher }} </td>
+            <td> {{ val.availability }} </td>
+            <td> {{ val.edition }} </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </table>
+</body>
+</html>
