@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.views.generic.list import ListView
+from django.views.generic.base import TemplateView
 from django.http import HttpResponse
 import xlrd
 import os
@@ -32,5 +34,15 @@ def get_books_data(request):
     data = Book.objects.all().order_by('edition')
 
     return render(request, 'book_details.html', {'book_data': data})
+
+
+class BookView(ListView):
+    template_name = 'book_details.html'
+    model = Book
+    queryset = Book.objects.all()
+    ordering = '-edition'
+    context_object_name = 'book_info'
+
+
 
 
