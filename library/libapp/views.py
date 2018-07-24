@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 import xlrd
 import os
 from library.settings import BASE_DIR
 from .models import Book
+from .forms import BookForm
 # Create your views here.
 #excel_path = 'C:\\Users\\User\\workspace\\libmanage'
 
@@ -30,9 +31,7 @@ def book_data():
 def get_books_data(request):
 
     book_data()
-
     data = Book.objects.all().order_by('edition')
-
     return render(request, 'book_details.html', {'book_data': data})
 
 
@@ -42,6 +41,53 @@ class BookView(ListView):
     queryset = Book.objects.all()
     ordering = '-edition'
     context_object_name = 'book_info'
+
+
+def book_view(request):
+    '''
+    View which defines submitting data through modelform.
+    :param request:
+    :return: renders a form
+    '''
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+        else:
+            raise form.ValidationErrors('Enter valid data.')
+
+        return HttpResponseRedirect('/book/all_books/')
+
+    else:
+        form = BookForm()
+
+    return render(request, 'book_form.html', {'form': form})
+
+
+def create_book(request):
+    '''
+    View to define submitting data using form.
+    :param request:
+    :return: render form
+    '''
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        #import pdb;pdb.set_trace()
+        if form.is_valid():
+            data = form.cleaned_data
+            Book.objects.create(name=data['name'], author=data['author'], category=data['category'],
+                publisher=data['publisher'], availability=data['availability'], edition=data['edition'])
+        else:
+            raise form.ValidationErrors('Enter valid data.')
+
+        return HttpResponseRedirect('/book/all_books/')
+
+    else:
+        form = BookForm()
+
+    return render(request, 'book_form.html', {'form': form})
+
+
 
 
 
