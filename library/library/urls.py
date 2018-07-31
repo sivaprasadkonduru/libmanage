@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from libapp import views
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'book', include('libapp.urls')),
+    #url(r'author', include('libauthor.urls'))
     #url(r'^$', views.get_books_data)
 ]

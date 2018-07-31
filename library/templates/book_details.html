@@ -1,11 +1,18 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+<!--!DOCTYPE html>
 <html lang="en">
+{% load tags %}
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-</head>
-<body align="center">
-    <h1> Book Data </h1>
+</head-->
+
+
+{% block content %}
+<body>
+    <h1 align="center"> Book Data </h1>
+    <span align="right"><a href="{% url 'book_form' %}">Create Book</a></span>
+    <span align="left"><a href="{% url 'home' %}">Logout</a></span>
     <table align="center" border="1">
         <tr>
             <td> S.No </td>
@@ -17,18 +24,17 @@
             <td> Edition </td>
         </tr>
         {% for val in book_info %}
-        {% if val %}
         <tr>
             <td> {{ forloop.counter }}</td>
-            <td> {{ val.name }} </td>
+            <td> {{ val.name | book_name }} </td>
             <td> {{ val.author }} </td>
             <td> {{ val.category }} </td>
             <td> {{ val.publisher }} </td>
             <td> {{ val.availability }} </td>
-            <td> {{ val.edition }} </td>
+            <td> {{ val.edition | num_to_char }} </td>
         </tr>
-        {% endif %}
+
         {% endfor %}
     </table>
 </body>
-</html>
+{% endblock %}

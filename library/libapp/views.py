@@ -1,12 +1,14 @@
 from django.shortcuts import render
+from django import forms
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth import authenticate, login
 import xlrd
 import os
 from library.settings import BASE_DIR
-from .models import Book
-from .forms import BookForm
+from .models import Book, UserModel
+from .forms import BookForm, SignUpForm
 # Create your views here.
 #excel_path = 'C:\\Users\\User\\workspace\\libmanage'
 
@@ -31,16 +33,24 @@ def book_data():
 def get_books_data(request):
 
     book_data()
+    #logged_in_user = request.user.username
+    #data = Book.objects.filter(book_user=UserModel.objects.filter(username=logged_in_user))
     data = Book.objects.all().order_by('edition')
     return render(request, 'book_details.html', {'book_data': data})
 
 
 class BookView(ListView):
+    #import pdb;pdb.set_trace()
     template_name = 'book_details.html'
     model = Book
-    queryset = Book.objects.all()
+    #queryset = Book.objects.all()
     ordering = '-edition'
     context_object_name = 'book_info'
+
+    def get_queryset(self):
+        logged_in_user = self.request.user.username
+        data = Book.objects.filter(book_user=UserModel.objects.get(username=logged_in_user))
+        return data
 
 
 def book_view(request):
@@ -88,7 +98,34 @@ def create_book(request):
     return render(request, 'book_form.html', {'form': form})
 
 
+def registration(request):
+
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        #import pdb; pdb.set_trace()
+        if form.is_valid():
+            data = form.cleaned_data
+            user_name = data['username']
+            email = data['email']
+            password = data['password']
+            if not UserModel.objects.filter(username=user_name).exists() and \
+                not UserModel.objects.filter(email=email).exists():
+                UserModel.objects.create_user(user_name, email, password)
+                user = authenticate(username=user_name, password=password)
+                login(request, user)
+                form.save()
+                return HttpResponseRedirect('/book/all_books')
+            else:
+                return HttpResponse('User already exists')
+
+        else:
+            return forms.ValidationError("Invalid form")
+
+    else:
+        form = SignUpForm()
+
+    return render(request, 'register.html', {'form': form})
 
 
-
-
+def home(request):
+    return render(request, 'home.html')
